@@ -27,7 +27,7 @@ internal class ResolveLoopProtector
 		var question = new DnsQuestion(name, recordType, recordClass);
 
 		if (_chain.Contains(question))
-			throw new Exception("DNS Resolve loop detected");
+			throw new DnsResolutionFailedException(DnsFailureReason.ResolveLoop, name);
 
 		return new Disposable(_chain, question);
 	}

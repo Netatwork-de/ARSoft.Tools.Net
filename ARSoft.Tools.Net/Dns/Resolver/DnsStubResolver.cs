@@ -90,9 +90,14 @@ namespace ARSoft.Tools.Net.Dns
 
 				DnsMessage? msg = _dnsClient.Resolve(name, recordType, recordClass);
 
-				if ((msg == null) || ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain)))
+				if (msg == null)
 				{
-					throw new Exception("DNS request failed");
+					throw new DnsResolutionFailedException(DnsFailureReason.InternalResolutionFailure, name);
+				}
+
+				if ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain))
+				{
+					throw new DnsResolutionFailedException(msg.ReturnCode, name);
 				}
 
 				CNameRecord? cName = msg.AnswerRecords.Where(x => (x.RecordType == RecordType.CName) && (x.RecordClass == recordClass) && x.Name.Equals(name)).OfType<CNameRecord>().FirstOrDefault();
@@ -151,9 +156,14 @@ namespace ARSoft.Tools.Net.Dns
 
 				var msg = await _dnsClient.ResolveAsync(name, recordType, recordClass, DnsQueryOptions.DefaultQueryOptions, token);
 
-				if ((msg == null) || ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain)))
+				if (msg == null)
 				{
-					throw new Exception("DNS request failed");
+					throw new DnsResolutionFailedException(DnsFailureReason.InternalResolutionFailure, name);
+				}
+
+				if ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain))
+				{
+					throw new DnsResolutionFailedException(msg.ReturnCode, name);
 				}
 
 				var cName = msg.AnswerRecords.Where(x => (x.RecordType == RecordType.CName) && (x.RecordClass == recordClass) && x.Name.Equals(name)).OfType<CNameRecord>().FirstOrDefault();

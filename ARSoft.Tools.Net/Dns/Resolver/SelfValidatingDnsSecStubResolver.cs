@@ -156,9 +156,14 @@ namespace ARSoft.Tools.Net.Dns
 					EDnsOptions = DnsQueryOptions.DefaultDnsSecQueryOptions.EDnsOptions
 				}, token);
 
-				if ((msg == null) || ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain)))
+				if (msg == null)
 				{
-					throw new Exception("DNS request failed");
+					throw new DnsResolutionFailedException(DnsFailureReason.InternalResolutionFailure, name);
+				}
+
+				if ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain))
+				{
+					throw new DnsResolutionFailedException(msg.ReturnCode, name);
 				}
 
 				DnsSecValidationResult validationResult;

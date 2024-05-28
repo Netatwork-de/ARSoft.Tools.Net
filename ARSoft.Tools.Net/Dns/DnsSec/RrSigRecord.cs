@@ -254,6 +254,7 @@ namespace ARSoft.Tools.Net.Dns
 				}
 				else
 				{
+					throw new DnsResolutionFailedException(DnsFailureReason.TooFewLabels, record.Name);
 					throw new Exception("Encoding of records with less labels than RrSigRecord is not allowed");
 				}
 

@@ -18,6 +18,7 @@
 
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 
 namespace ARSoft.Tools.Net.Dns;
 
@@ -210,13 +211,12 @@ public class DnsSecRecursiveDnsResolver : IDnsSecResolver, IInternalDnsSecResolv
 					}
 				}
 
-				// Response of best known server is not authoritive and has no referrals --> No chance to get a result
-				throw new Exception("Could not resolve " + name.ToString(false));
+				
+				throw new DnsResolutionFailedException(DnsFailureReason.NoAuthoritativeResult, name);
 			}
 		}
 
-		// query limit reached without authoritive answer
-		throw new Exception("Could not resolve " + name.ToString(false));
+		throw new DnsResolutionFailedException(DnsFailureReason.QueryLimitReached, name);
 	}
 
 	private async Task<DnsSecResult<T>> ResolveAsyncInternal<T>(DomainName name, RecordType recordType, RecordClass recordClass, ResolveContext resolveContext, CancellationToken token)
@@ -298,7 +298,7 @@ public class DnsSecRecursiveDnsResolver : IDnsSecResolver, IInternalDnsSecResolv
 			}
 
 			// authoritive response does not contain answer
-			throw new Exception("Could not resolve " + name.ToString(false));
+			throw new DnsResolutionFailedException(DnsFailureReason.NoAuthoritativeResult, name);
 		}
 	}
 

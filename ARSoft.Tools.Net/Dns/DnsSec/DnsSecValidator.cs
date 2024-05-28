@@ -62,9 +62,15 @@ namespace ARSoft.Tools.Net.Dns
 			{
 				DnsMessage? msg = await _resolver.ResolveMessageAsync(name, RecordType.Ds, recordClass, state, token);
 
-				if ((msg == null) || ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain)))
+				if (msg == null)
 				{
-					throw new Exception("DNS request failed");
+					throw new DnsResolutionFailedException(DnsFailureReason.InternalResolutionFailure, name);
+				}
+
+				if ((msg.ReturnCode != ReturnCode.NoError) && (msg.ReturnCode != ReturnCode.NxDomain))
+				{
+
+					throw new DnsResolutionFailedException(msg.ReturnCode, name);
 				}
 
 				List<RrSigRecord> rrSigRecords = msg
