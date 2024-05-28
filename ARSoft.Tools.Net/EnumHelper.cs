@@ -31,8 +31,8 @@ namespace ARSoft.Tools.Net
 
 		static EnumHelper()
 		{
-			string[] names = Enum.GetNames(typeof(T));
-			T[] values = (T[]) Enum.GetValues(typeof(T));
+			string[] names = Enum.GetNames<T>();
+			T[] values = Enum.GetValues<T>();
 
 			_names = new Dictionary<T, string>(names.Length);
 			_values = new Dictionary<string, T>(names.Length * 2);
