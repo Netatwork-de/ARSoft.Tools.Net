@@ -15,8 +15,8 @@
     <PackageTags>dns dnssec spf</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright 2010..2023 Alexander Reinert</Copyright>
-    <VersionPrefix>3.6.0</VersionPrefix>
+    <Copyright>Copyright 2010..2024 Alexander Reinert</Copyright>
+    <VersionPrefix>3.6.1</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>
