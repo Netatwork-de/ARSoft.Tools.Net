@@ -96,6 +96,8 @@ public class HttpsClientTransport : IClientTransport
 			if (!response.IsSuccessStatusCode)
 				return false;
 
+			if (!string.Equals(response.Content.Headers.ContentType?.MediaType, "application/dns-message", StringComparison.OrdinalIgnoreCase)) throw new DnsResolutionFailedException(DnsFailureReason.HttpsResponseInvalid, DomainName.Root);
+
 			using var ms = new MemoryStream();
 			ms.WriteByte(0);
 			ms.WriteByte(0);

@@ -8,6 +8,9 @@
 		QueryLimitReached,
 		InternalResolutionFailure,
 		ResolveLoop,
-		DnsServerError
+		DnsServerError,
+		QueryTimeout,
+		InvalidQuery,
+		HttpsResponseInvalid
 	}
 }

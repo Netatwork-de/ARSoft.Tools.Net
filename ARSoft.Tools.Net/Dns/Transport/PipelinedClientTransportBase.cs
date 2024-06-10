@@ -269,7 +269,7 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 			}
 
 			if (startReceiver)
-				Task.Run(ReceiveTaskProcInternal).ConfigureAwait(false);
+				Task.Run(ReceiveTaskProcInternal, CancellationToken.None).ConfigureAwait(false);
 
 			if (token.CanBeCanceled)
 				token.Register(CancelReceiveAsync, Tuple.Create(identification, tcs));

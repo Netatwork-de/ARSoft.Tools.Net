@@ -201,6 +201,10 @@ namespace ARSoft.Tools.Net.Dns
 						connection.MarkFaulty();
 					}
 				}
+				catch (DnsResolutionFailedException)
+				{
+					throw;
+				}
 				catch (Exception e)
 				{
 					Trace.TraceError("Error on dns query: " + e);
