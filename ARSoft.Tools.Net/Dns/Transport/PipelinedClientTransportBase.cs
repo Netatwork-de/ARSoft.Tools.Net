@@ -150,11 +150,23 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 		return await connectTask.WaitAsync(token);
 	}
 
-	private void RemoveFromPool(PipelinedClientConnection connection)
+	private async Task RemoveFromPool(PipelinedClientConnection connection)
 	{
-		lock (_pool)
+		Task<PipelinedClientConnection?>? connTask;
+
+        lock (_pool)
 		{
-			if (_pool.TryGetValue(connection.DestinationAddress, out var connTask) && connTask.Result == connection)
+			if (!_pool.TryGetValue(connection.DestinationAddress, out connTask))
+			{
+				return;
+			}
+		}
+
+        PipelinedClientConnection? conn = await connTask.ConfigureAwait(false);
+
+		if (conn == connection)
+		{
+			lock (_pool)
 			{
 				_pool.Remove(connection.DestinationAddress);
 			}
@@ -315,7 +327,7 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 
 		public void MarkFaulty()
 		{
-			_transport.RemoveFromPool(this);
+			_ = Task.Run(async () => await _transport.RemoveFromPool(this).ConfigureAwait(false));
 			_connection.MarkFaulty();
 			_idleTcs.TryDispose();
 			_connection.TryDispose();
