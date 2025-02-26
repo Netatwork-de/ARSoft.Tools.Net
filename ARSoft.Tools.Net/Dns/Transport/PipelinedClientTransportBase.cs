@@ -160,7 +160,13 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 			{
 				return;
 			}
-		}
+
+			if (connTask.IsCompleted && connTask.Result == connection)
+            {
+                _pool.Remove(connection.DestinationAddress);
+                return;
+            }
+        }
 
         PipelinedClientConnection? conn = await connTask.ConfigureAwait(false);
 
@@ -168,7 +174,10 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 		{
 			lock (_pool)
 			{
-				_pool.Remove(connection.DestinationAddress);
+				if (_pool.TryGetValue(connection.DestinationAddress, out var poolTask) && poolTask == connTask)
+				{
+                    _pool.Remove(connection.DestinationAddress);
+				}
 			}
 		}
 	}
