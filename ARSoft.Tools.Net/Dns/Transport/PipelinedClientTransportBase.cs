@@ -167,17 +167,24 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 			{
 				Task.Run(async () =>
 				{
-					var conn = await connTask.ConfigureAwait(false);
-
-					if (conn == connection)
+					try
 					{
-						lock (_pool)
+						var conn = await connTask.ConfigureAwait(false);
+
+						if (conn == connection)
 						{
-							if (_pool.TryGetValue(connection.DestinationAddress, out var poolTask) && poolTask == connTask)
+							lock (_pool)
 							{
-								_pool.Remove(connection.DestinationAddress);
+								if (_pool.TryGetValue(connection.DestinationAddress, out var poolTask) && poolTask == connTask)
+								{
+									_pool.Remove(connection.DestinationAddress);
+								}
 							}
 						}
+					}
+					catch (Exception)
+					{
+						// No unobserved task exception
 					}
 				});
 			}
