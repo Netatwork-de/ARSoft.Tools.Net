@@ -119,8 +119,8 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 		lock (_pool)
 		{
 			if (_pool.TryGetValue(endpointInfo.DestinationAddress, out connectTask)
-			    && connectTask.IsCompleted
-			    && (connectTask.Result == null || !connectTask.Result.IsAlive))
+				&& connectTask.IsCompleted
+				&& (connectTask.Result == null || !connectTask.Result.IsAlive))
 			{
 				try
 				{
@@ -150,34 +150,36 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 		return await connectTask.WaitAsync(token);
 	}
 
-	private async Task RemoveFromPool(PipelinedClientConnection connection)
+	private void RemoveFromPool(PipelinedClientConnection connection)
 	{
-		Task<PipelinedClientConnection?>? connTask;
-
-        lock (_pool)
+		lock (_pool)
 		{
-			if (!_pool.TryGetValue(connection.DestinationAddress, out connTask))
+			if (!_pool.TryGetValue(connection.DestinationAddress, out var connTask))
 			{
 				return;
 			}
 
-			if (connTask.IsCompleted && connTask.Result == connection)
-            {
-                _pool.Remove(connection.DestinationAddress);
-                return;
-            }
-        }
-
-        PipelinedClientConnection? conn = await connTask.ConfigureAwait(false);
-
-		if (conn == connection)
-		{
-			lock (_pool)
+			if (connTask.IsCompletedSuccessfully && connTask.Result == connection)
 			{
-				if (_pool.TryGetValue(connection.DestinationAddress, out var poolTask) && poolTask == connTask)
+				_pool.Remove(connection.DestinationAddress);
+			}
+			else
+			{
+				Task.Run(async () =>
 				{
-                    _pool.Remove(connection.DestinationAddress);
-				}
+					var conn = await connTask.ConfigureAwait(false);
+
+					if (conn == connection)
+					{
+						lock (_pool)
+						{
+							if (_pool.TryGetValue(connection.DestinationAddress, out var poolTask) && poolTask == connTask)
+							{
+								_pool.Remove(connection.DestinationAddress);
+							}
+						}
+					}
+				});
 			}
 		}
 	}
@@ -336,7 +338,7 @@ public abstract class PipelinedClientTransportBase : IClientTransport
 
 		public void MarkFaulty()
 		{
-			_ = Task.Run(async () => await _transport.RemoveFromPool(this).ConfigureAwait(false));
+			_transport.RemoveFromPool(this);
 			_connection.MarkFaulty();
 			_idleTcs.TryDispose();
 			_connection.TryDispose();
