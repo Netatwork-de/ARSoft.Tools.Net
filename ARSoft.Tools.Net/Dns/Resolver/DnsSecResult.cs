@@ -36,7 +36,7 @@ namespace ARSoft.Tools.Net.Dns
 		/// </summary>
 		public List<T> Records { get; private set; }
 
-		internal DnsSecResult(List<T> records, DnsSecValidationResult validationResult)
+		public DnsSecResult(List<T> records, DnsSecValidationResult validationResult)
 		{
 			Records = records;
 			ValidationResult = validationResult;
