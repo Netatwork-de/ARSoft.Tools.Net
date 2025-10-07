@@ -387,7 +387,7 @@ namespace ARSoft.Tools.Net.Dns
 				curveParameter.H,
 				curveParameter.GetSeed());
 
-			byte[] reversedPublicKey = PublicKey.Reverse().ToArray();
+			byte[] reversedPublicKey = PublicKey.ToArray();
 			ECPoint q = dParams.Curve.CreatePoint(new BigInteger(1, reversedPublicKey, 32, 32), new BigInteger(1, reversedPublicKey, 0, 32));
 			ECPublicKeyParameters parameters = new ECPublicKeyParameters(q, dParams);
 
